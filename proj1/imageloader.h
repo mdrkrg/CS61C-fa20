@@ -8,7 +8,7 @@ typedef struct Color {
   uint8_t B;
 } Color;
 typedef struct Image {
-  Color ***image;
+  Color **image;
   uint32_t rows;
   uint32_t cols;
 } Image;

@@ -28,6 +28,7 @@ Image *readData(char *filename) {
   // YOUR CODE HERE
   FILE *fp = fopen(filename, "r");
   Image *image;
+  uint32_t index;
 
   if (fp == NULL) {
     fclose(fp);
@@ -45,20 +46,17 @@ Image *readData(char *filename) {
   fscanf(fp, "%d %d\n", &(image->cols), &(image->rows));
   fscanf(fp, "%*[^\n]\n"); // Skip a line
 
-  image->image = calloc(image->rows, sizeof(Color **));
+  image->image = calloc(image->rows * image->cols, sizeof(Color *));
   if (image->image == NULL) {
     return NULL;
   }
   for (int i = 0; i < image->rows; i++) {
-    image->image[i] = calloc(image->cols, sizeof(Color *));
-    if (image->image[i] == NULL) {
-      return NULL;
-    }
     for (int j = 0; j < image->cols; j++) {
-      image->image[i][j] = malloc(sizeof(Color));
-      fscanf(fp, "%" SCNd8, &(image->image[i][j]->R));
-      fscanf(fp, "%" SCNd8, &(image->image[i][j]->G));
-      fscanf(fp, "%" SCNd8, &(image->image[i][j]->B));
+      index = i * image->cols + j;
+      image->image[index] = malloc(sizeof(Color));
+      fscanf(fp, "%" SCNd8, &image->image[index]->R);
+      fscanf(fp, "%" SCNd8, &image->image[index]->G);
+      fscanf(fp, "%" SCNd8, &image->image[index]->B);
     }
   }
   fclose(fp);
@@ -69,20 +67,23 @@ Image *readData(char *filename) {
 // image's data.
 void writeData(Image *image) {
   // YOUR CODE HERE
+  uint32_t index;
   printf("P3\n");
   printf("%d %d\n", image->cols, image->rows);
   printf("255\n");
   for (int i = 0; i < image->rows; i++) {
     assert(image->cols > 0);
     for (int j = 0; j < image->cols - 1; j++) {
-      printf("%3d ", image->image[i][j]->R);
-      printf("%3d ", image->image[i][j]->G);
-      printf("%3d ", image->image[i][j]->B);
+      index = i * image->cols + j;
+      printf("%3d ", image->image[index]->R);
+      printf("%3d ", image->image[index]->G);
+      printf("%3d ", image->image[index]->B);
       printf("  ");
     }
-    printf("%3d ", image->image[i][image->cols - 1]->R);
-    printf("%3d ", image->image[i][image->cols - 1]->G);
-    printf("%3d", image->image[i][image->cols - 1]->B);
+    index++;
+    printf("%3d ", image->image[index]->R);
+    printf("%3d ", image->image[index]->G);
+    printf("%3d", image->image[index]->B);
     printf("\n");
   }
 }
@@ -92,9 +93,8 @@ void freeImage(Image *image) {
   // YOUR CODE HERE
   for (int i = 0; i < image->rows; i++) {
     for (int j = 0; j < image->cols; j++) {
-      free(image->image[i][j]);
+      free(image->image[i * image->cols + j]);
     }
-    free(image->image[i]);
   }
   free(image->image);
   free(image);
