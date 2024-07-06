@@ -40,6 +40,10 @@ gameoflife: imageloader.o gameoflife.o
 gameoflifememcheck: gameoflife
 	valgrind $(VGFLAGS) ./gameOfLife testInputs/JohnConway.ppm 0x1808 > studentOutputs/temp.ppm
 
+gameoflifefullcolor: imageloader.o gameoflifefullcolor.o
+	$(CC) $(LDFLAGS) -o gameOfLifeFullColor gameoflifefullcolor.o imageloader.o
+	echo "Successfully compiled"
+	echo "Run ./frames.csh for various tests"
 
 %.o: %.c
 	$(CC) $(CFLAGS) $<
