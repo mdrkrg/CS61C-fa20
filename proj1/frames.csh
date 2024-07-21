@@ -20,7 +20,7 @@
 
 set indir = "testInputs"
 set outdir = "studentOutputs"
-set life = "./gameOfLife"
+set life = "./gameOfLifeFullColor"
 
 if ($#argv != 3) then
     echo "Usage: $0 <rootname> <rule> <frames>"
