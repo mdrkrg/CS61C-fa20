@@ -114,7 +114,6 @@ classify:
     mv   a5, s11
     mv   a6, s0
     jal  matmul
-    mv   s0, a6
     ebreak
 
     # free m0

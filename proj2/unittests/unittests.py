@@ -380,21 +380,65 @@ class TestClassify(TestCase):
         t.include("write_matrix.s")
         return t
 
+    def do_test_once(self, args, ref_file="", classification="", print_classification=0, fail="", code=0):
+        t = self.make_test()
+        t.input_scalar("a2", print_classification)
+        t.call("classify")
+        t.execute(args=args, fail=fail, code=code)
+        if (not fail or not code) and ref_file:
+            t.check_file_output(args[3], ref_file)
+        if (print_classification == 0) and (classification):
+            t.check_stdout(classification)
+
+    # def test_mnist(self):
+    #     for count in range(0, 9):
+    #         out_file = f"outputs/test_basic_main/student_mnist_output{count}.bin"
+    #         classify_ref = f"../inputs/mnist/txt/labels/label{count}.txt"
+    #         file = open(classify_ref)
+    #         assert(file)
+    #         classification = file.read(1)
+    #         args = [
+    #             "inputs/mnist/bin/m0.bin",
+    #             "inputs/mnist/bin/m1.bin",
+    #             f"inputs/mnist/bin/inputs/mnist_input{count}.bin",
+    #             out_file
+    #         ]
+    #         self.do_test_once(
+    #             args,
+    #             classification=classification
+    #         )
+    #         file.close()
+
+    # def test_error(self):
+    #     out_file = "outputs/test_basic_main/student_test_error.bin"
+    #     args = [
+    #         "inputs/simple0/bin/m0.bin",
+    #         "inputs/simple0/bin/m1.bin",
+    #         "inputs/simple0/bin/inputs/input0.bin",
+    #         out_file
+    #         ]
+    #     self.do_test_once(None, code=89)
+    #     self.do_test_once(args, ref_file="outputs/test_basic_main/reference0.bin", print_classification=1)
+    #     self.do_test_once(args, fail="malloc", code=88)
+    #
+
+
     def test_simple0_input0(self):
         t = self.make_test()
         out_file = "outputs/test_basic_main/student0.bin"
         ref_file = "outputs/test_basic_main/reference0.bin"
-        args = ["inputs/simple0/bin/m0.bin", "inputs/simple0/bin/m1.bin",
-                "inputs/simple0/bin/inputs/input0.bin", out_file]
+        args = ["inputs/simple1/bin/m0.bin", "inputs/simple0/bin/m1.bin",
+                "inputs/simple1/bin/inputs/input0.bin", out_file]
+        t.input_scalar("a2", 0)
         # call classify function
         t.call("classify")
         # generate assembly and pass program arguments directly to venus
         t.execute(args=args)
-
         # compare the output file and
-        raise NotImplementedError("TODO")
-        # TODO
+        t.check_file_output(out_file, ref_file)
         # compare the classification output with `check_stdout`
+        # t.check_stdout("2")
+
 
     @classmethod
     def tearDownClass(cls):
