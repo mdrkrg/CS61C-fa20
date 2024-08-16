@@ -1054,39 +1054,61 @@ end TCL_Generic;
       <a name="fanout" val="5"/>
       <a name="incoming" val="7"/>
     </comp>
-    <comp lib="0" loc="(670,400)" name="Pin">
+    <comp lib="0" loc="(730,370)" name="Pin">
       <a name="facing" val="west"/>
       <a name="label" val="RegWEn"/>
       <a name="output" val="true"/>
     </comp>
-    <comp lib="1" loc="(490,370)" name="NAND Gate">
+    <comp lib="1" loc="(470,400)" name="NOT Gate"/>
+    <comp lib="1" loc="(480,330)" name="NOT Gate"/>
+    <comp lib="1" loc="(510,340)" name="NOT Gate"/>
+    <comp lib="1" loc="(540,350)" name="NOT Gate"/>
+    <comp lib="1" loc="(590,290)" name="AND Gate">
+      <a name="inputs" val="4"/>
+      <a name="size" val="30"/>
+    </comp>
+    <comp lib="1" loc="(590,340)" name="AND Gate">
       <a name="inputs" val="3"/>
       <a name="size" val="30"/>
     </comp>
-    <comp lib="1" loc="(560,380)" name="AND Gate">
+    <comp lib="1" loc="(590,390)" name="AND Gate">
       <a name="size" val="30"/>
     </comp>
-    <comp lib="1" loc="(560,420)" name="AND Gate">
+    <comp lib="1" loc="(700,370)" name="OR Gate">
       <a name="inputs" val="3"/>
-      <a name="size" val="30"/>
     </comp>
-    <comp lib="1" loc="(640,400)" name="OR Gate"/>
-    <wire from="(420,360)" to="(450,360)"/>
-    <wire from="(420,370)" to="(450,370)"/>
-    <wire from="(420,380)" to="(440,380)"/>
-    <wire from="(420,390)" to="(430,390)"/>
-    <wire from="(420,400)" to="(420,430)"/>
-    <wire from="(420,430)" to="(530,430)"/>
-    <wire from="(430,390)" to="(430,420)"/>
-    <wire from="(430,390)" to="(530,390)"/>
-    <wire from="(430,420)" to="(530,420)"/>
-    <wire from="(440,380)" to="(440,410)"/>
-    <wire from="(440,380)" to="(450,380)"/>
-    <wire from="(440,410)" to="(530,410)"/>
-    <wire from="(490,370)" to="(530,370)"/>
-    <wire from="(560,380)" to="(590,380)"/>
-    <wire from="(560,420)" to="(590,420)"/>
-    <wire from="(640,400)" to="(670,400)"/>
+    <wire from="(420,270)" to="(420,360)"/>
+    <wire from="(420,270)" to="(560,270)"/>
+    <wire from="(420,380)" to="(450,380)"/>
+    <wire from="(420,390)" to="(440,390)"/>
+    <wire from="(420,400)" to="(430,400)"/>
+    <wire from="(430,280)" to="(430,330)"/>
+    <wire from="(430,280)" to="(560,280)"/>
+    <wire from="(430,330)" to="(430,400)"/>
+    <wire from="(430,330)" to="(450,330)"/>
+    <wire from="(430,400)" to="(440,400)"/>
+    <wire from="(440,300)" to="(440,340)"/>
+    <wire from="(440,300)" to="(560,300)"/>
+    <wire from="(440,340)" to="(440,390)"/>
+    <wire from="(440,340)" to="(480,340)"/>
+    <wire from="(450,350)" to="(450,380)"/>
+    <wire from="(450,350)" to="(510,350)"/>
+    <wire from="(450,380)" to="(560,380)"/>
+    <wire from="(470,400)" to="(560,400)"/>
+    <wire from="(480,330)" to="(560,330)"/>
+    <wire from="(510,340)" to="(560,340)"/>
+    <wire from="(540,350)" to="(550,350)"/>
+    <wire from="(550,310)" to="(550,350)"/>
+    <wire from="(550,310)" to="(560,310)"/>
+    <wire from="(550,350)" to="(560,350)"/>
+    <wire from="(590,290)" to="(610,290)"/>
+    <wire from="(590,340)" to="(600,340)"/>
+    <wire from="(590,390)" to="(650,390)"/>
+    <wire from="(600,340)" to="(600,370)"/>
+    <wire from="(600,370)" to="(650,370)"/>
+    <wire from="(610,290)" to="(610,350)"/>
+    <wire from="(610,350)" to="(650,350)"/>
+    <wire from="(700,370)" to="(730,370)"/>
   </circuit>
   <circuit name="PCSelControl">
     <a name="appearance" val="logisim_evolution"/>
