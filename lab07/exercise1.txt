@@ -1,0 +1,24 @@
+Scenario 1
+    1. Step Size, Block Size
+    2. 0
+    3. Step Size, 1
+
+Scenario 2
+    1. 2
+    2. MHHH
+    3. 1
+
+Scenario 3
+    1.
+    2.
+    3.
+    4.
+    5.
+
+--- lines below are ignored by the AG ---
+
+Checkoff Question 1: Because every repeat does the same all cache misses.
+Checkoff Question 2: Step Size, Rep Count.
+Checkoff Question 3: Because the first lw misses and loads one block, making the next sw be a hit and including the next iteration of lw/sw.
+Checkoff Question 4: Because total access time is 32, split up evenly to four cache indexes. The first repeat warmed up the cache with all addresses needed to access and the other outer iterations just go to the cache (, so every other iterations have hit rate 1).
+Checkoff Question 5: Split up the whole 1024 iterations into smaller iterations on smaller chunks of the whole array, and perform the 1024 iterations seperately on each small chunk of array. The chunk size should be the same as cache size.
