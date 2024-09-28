@@ -392,13 +392,13 @@ main (void)
     }
 
   /* add the tests to the suite */
-  if ((CU_add_test (pSuite, "add_test", add_test_2) == NULL) ||
-      // (CU_add_test(pSuite, "sub_test", sub_test) == NULL) ||
-      // (CU_add_test(pSuite, "mul_test", mul_test) == NULL) ||
-      (CU_add_test (pSuite, "neg_test", neg_test) == NULL)
-      || (CU_add_test (pSuite, "abs_test", abs_test) == NULL) ||
-      // (CU_add_test(pSuite, "pow_test", pow_test) == NULL) ||
-      (CU_add_test (pSuite, "copy_matrix", copy_test) == NULL)
+  if ((CU_add_test (pSuite, "add_test", add_test_2) == NULL)
+      || (CU_add_test (pSuite, "sub_test", sub_test) == NULL)
+      || (CU_add_test (pSuite, "mul_test", mul_test) == NULL)
+      || (CU_add_test (pSuite, "neg_test", neg_test) == NULL)
+      || (CU_add_test (pSuite, "abs_test", abs_test) == NULL)
+      || (CU_add_test (pSuite, "pow_test", pow_test) == NULL)
+      || (CU_add_test (pSuite, "copy_matrix", copy_test) == NULL)
       || (CU_add_test (pSuite, "alloc_fail_test", alloc_fail_test) == NULL)
       || (CU_add_test (pSuite, "alloc_success_test", alloc_success_test)
           == NULL)

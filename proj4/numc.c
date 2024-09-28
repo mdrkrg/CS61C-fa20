@@ -12,10 +12,10 @@
                                                                               \
       switch (alloc_failed)                                                   \
         {                                                                     \
-        case -1:                                                              \
+        case EINVAL:                                                          \
           PyErr_SetString (PyExc_ValueError, "Matrix shape invalid");         \
           return NULL;                                                        \
-        case -2:                                                              \
+        case ENOMEM:                                                          \
           PyErr_SetString (PyExc_RuntimeError, "Allocation failure");         \
           return NULL;                                                        \
         }                                                                     \
@@ -23,13 +23,13 @@
       int op##_failed = op##_matrix (result, self->mat, mat61c->mat);         \
       switch (op##_failed)                                                    \
         {                                                                     \
-        case -1:                                                              \
+        case EINVAL:                                                          \
           PyErr_SetString (PyExc_ValueError, "Matrix shape mismatch");        \
           return NULL;                                                        \
-        case -2:                                                              \
+        case ENOMEM:                                                          \
           PyErr_SetString (PyExc_RuntimeError, "Allocation failure");         \
           return NULL;                                                        \
-        case -3:                                                              \
+        case EFAULT:                                                          \
           PyErr_SetString (PyExc_TypeError, "Null pointer dereference");      \
           return NULL;                                                        \
         }                                                                     \
@@ -55,10 +55,10 @@
                                                                               \
   switch (alloc_failed)                                                       \
     {                                                                         \
-    case -1:                                                                  \
+    case EINVAL:                                                              \
       PyErr_SetString (PyExc_ValueError, "Matrix shape invalid");             \
       return NULL;                                                            \
-    case -2:                                                                  \
+    case ENOMEM:                                                              \
       PyErr_SetString (PyExc_RuntimeError, "Allocation failure");             \
       return NULL;                                                            \
     }                                                                         \
@@ -66,13 +66,13 @@
   int op##_failed = op##_matrix (result, self->mat);                          \
   switch (op##_failed)                                                        \
     {                                                                         \
-    case -1:                                                                  \
+    case EINVAL:                                                              \
       PyErr_SetString (PyExc_ValueError, "Matrix shape mismatch");            \
       return NULL;                                                            \
-    case -2:                                                                  \
+    case ENOMEM:                                                              \
       PyErr_SetString (PyExc_RuntimeError, "Allocation failure");             \
       return NULL;                                                            \
-    case -3:                                                                  \
+    case EFAULT:                                                              \
       PyErr_SetString (PyExc_TypeError, "Null pointer dereference");          \
       return NULL;                                                            \
     }                                                                         \

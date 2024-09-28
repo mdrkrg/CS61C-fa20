@@ -32,7 +32,7 @@ size_mismatch (matrix *mat_1, matrix *mat_2)
 {
   if (mat_1->rows != mat_2->rows || mat_1->cols != mat_2->cols)
     {
-      return 1;
+      return EINVAL;
     }
   else
     {
@@ -70,7 +70,7 @@ rand_matrix (matrix *result, unsigned int seed, double low, double high)
 /*
  * Allocate space for a matrix struct pointed to by the double pointer mat with
  * `rows` rows and `cols` columns. You should also allocate memory for the data
- * array and initialize all entries to be zeros. Remember to set all fieds of
+ * array and initialize all entries to be zeros. Remember to set all fields of
  * the matrix struct. `parent` should be set to NULL to indicate that this
  * matrix is not a slice. You should return -1 if either `rows` or `cols` or
  * both have invalid values, or if any call to allocate memory in this function
@@ -83,11 +83,11 @@ allocate_matrix (matrix **mat, int rows, int cols)
 {
   if (rows < 1 || cols < 1)
     {
-      return -1;
+      return EINVAL;
     }
   if ((*mat = malloc (sizeof (matrix))) == NULL)
     {
-      return -2;
+      return ENOMEM;
     }
   (*mat)->rows = rows;
   (*mat)->cols = cols;
@@ -95,7 +95,7 @@ allocate_matrix (matrix **mat, int rows, int cols)
   (*mat)->data = calloc (rows * cols, sizeof (double)); // calloc zero inits
   if ((*mat)->data == NULL)
     {
-      return -2;
+      return ENOMEM;
     }
   (*mat)->parent = NULL;
   (*mat)->ref_cnt = 1;
@@ -111,11 +111,11 @@ copy_matrix (matrix **mat, matrix *from)
   int rows, cols;
   if (from == NULL)
     {
-      return -3;
+      return EFAULT;
     }
   if ((*mat = malloc (sizeof (matrix))) == NULL)
     {
-      return -2;
+      return ENOMEM;
     }
   (*mat)->rows = rows = from->rows;
   (*mat)->cols = cols = from->cols;
@@ -124,7 +124,7 @@ copy_matrix (matrix **mat, matrix *from)
   (*mat)->ref_cnt = 1;
   if (((*mat)->data = calloc (rows * cols, sizeof (double))) == NULL)
     {
-      return -2;
+      return EINVAL;
     }
   p_to = (*mat)->data;
   p_from = from->data;
@@ -154,13 +154,9 @@ int
 flatten_matrix (matrix **to, matrix *from)
 {
   int retval;
-  if (!from)
+  if (!from || !to)
     {
-      return -3;
-    }
-  if (!to)
-    {
-      return -3;
+      return EFAULT;
     }
   retval = 0;
   if (from->parent)
@@ -217,18 +213,18 @@ allocate_matrix_ref (matrix **mat, matrix *from, int row_offset,
   matrix *root_mat;
   if (from == NULL || mat == NULL)
     {
-      return -3;
+      return EFAULT;
     }
   if (rows < 1 || cols < 1 || row_offset < 0 || col_offset < 0
       || row_offset + rows > from->rows || col_offset + cols > from->cols)
     {
-      return -1;
+      return EINVAL;
     }
   root_mat = (from->parent == NULL) ? from : from->parent;
   *mat = malloc (sizeof (matrix));
   if (*mat == NULL)
     {
-      return -2;
+      return ENOMEM;
     }
   (*mat)->rows = rows;
   (*mat)->cols = cols;
@@ -346,14 +342,14 @@ broadcast (matrix **to, matrix *from, int rows, int cols)
   register double *p_to, *p_from;
   if (from == NULL)
     {
-      return -3;
+      return EFAULT;
     }
   size = rows * cols;
   row_1d = from->rows == 1;
   col_1d = from->cols == 1;
   if (from->rows > rows || from->cols > cols || (!row_1d && !col_1d))
     {
-      return -1;
+      return EINVAL;
     }
   if ((retval = allocate_matrix (to, rows, cols)))
     {
@@ -418,15 +414,15 @@ add_matrix (matrix *result, matrix *mat1, matrix *mat2)
   col_gt = mat1->cols > mat2->cols;
   if (!col_eq && (mat1->cols != 1 && mat2->cols != 1))
     {
-      return -1;
+      return EINVAL;
     }
   if (!row_eq && (mat1->rows != 1 && mat2->rows != 1))
     {
-      return -1;
+      return EINVAL;
     }
   if (!result)
     {
-      return -3;
+      return EFAULT;
     }
   /* Only these cases:
    * bigger one:  m | n
@@ -607,7 +603,7 @@ sub_matrix (matrix *result, matrix *mat1, matrix *mat2)
   tmp = NULL;
   if (!result || !mat1 || !mat2)
     {
-      return -3;
+      return EFAULT;
     }
   retval = allocate_matrix (&tmp, mat2->rows, mat2->cols);
   if (retval)
@@ -633,7 +629,36 @@ sub_matrix (matrix *result, matrix *mat1, matrix *mat2)
 int
 mul_matrix (matrix *result, matrix *mat1, matrix *mat2)
 {
-  /* TODO: YOUR CODE HERE */
+  size_t stride_1, stride_2;
+  size_t i, j, k;
+  size_t m, n, p;
+  double val;
+  if (!result || !mat1 || !mat2)
+    {
+      return EFAULT;
+    }
+  m = mat1->rows;
+  n = mat2->cols;
+  p = mat1->cols;
+  if (result->rows != m || result->cols != n || mat1->cols != mat2->rows)
+    {
+      return EINVAL;
+    }
+  memset (result->data, 0, m * n * sizeof *(result->data));
+  stride_1 = (mat1->parent) ? mat1->parent->cols : p;
+  stride_2 = (mat2->parent) ? mat2->parent->cols : n;
+  for (i = 0; i < m; i++)
+    {
+      for (k = 0; k < p; k++)
+        {
+          for (j = 0; j < n; j++)
+            {
+              result->data[j + i * n] += mat1->data[k + i * stride_1]
+                                         * mat2->data[j + k * stride_2];
+            }
+        }
+    }
+
   return 0;
 }
 
@@ -642,11 +667,179 @@ mul_matrix (matrix *result, matrix *mat1, matrix *mat2)
  * Return 0 upon success and a nonzero value upon failure.
  * Remember that pow is defined with matrix multiplication, not element-wise
  * multiplication.
+ *
+ * Algorithm:
+ * Function exp_by_squaring_iterative(x, n)
+ *  if n < 0 then
+ *    x := 1 / x;
+ *    n := -n;
+ *  if n = 0 then return 1
+ *  y := 1;
+ *  while n > 1 do
+ *    if n is even then
+ *      x := x * x;
+ *      n := n / 2;
+ *    else
+ *      y := x * y;
+ *      x := x * x;
+ *      n := (n – 1) / 2;
+ *  return x * y
  */
 int
 pow_matrix (matrix *result, matrix *mat, int pow)
 {
-  /* TODO: YOUR CODE HERE */
+  // TODO: Add special optimization for a * I
+  size_t i, n;
+  matrix *x, *y, *z, *w;
+  int retval;
+  int flag_z, flag_w;
+  if (!mat || !result)
+    return EFAULT;
+
+  if (mat->rows != mat->cols || result->rows != mat->rows
+      || result->cols != mat->cols)
+    return EINVAL;
+
+  if (pow < 0)
+    return -4; /* Not Implemented */
+
+  n = mat->rows;
+  if (pow == 0)
+    {
+      for (i = 0; i < n; i++)
+        result->data[i + i * n] = 1;
+      return 0;
+    }
+  if (pow == 1)
+    {
+      retval = copy_matrix (&result, mat);
+      if (retval)
+        return retval;
+
+      return 0;
+    }
+
+  retval = allocate_matrix (&w, n, n);
+  if (retval)
+    {
+      deallocate_matrix (w);
+      return retval;
+    }
+
+  retval = allocate_matrix (&z, n, n);
+  if (retval)
+    {
+      deallocate_matrix (z);
+      deallocate_matrix (w);
+      return retval;
+    }
+
+  retval = allocate_matrix (&y, n, n);
+  if (retval)
+    {
+      deallocate_matrix (z);
+      deallocate_matrix (w);
+      deallocate_matrix (y);
+      return retval;
+    }
+
+  for (i = 0; i < n; i++)
+    {
+      y->data[i + i * n] = 1;
+    }
+
+  retval = copy_matrix (&x, mat);
+  if (retval)
+    {
+      deallocate_matrix (z);
+      deallocate_matrix (w);
+      deallocate_matrix (y);
+      deallocate_matrix (x);
+      return retval;
+    }
+
+  flag_w = flag_z = 1; /* available for use */
+
+  while (pow > 1)
+    {
+      if (pow % 2) /* is odd */
+        {
+          pow = (pow - 1) / 2;
+          if (flag_w)
+            {
+              flag_w = !flag_w;
+              retval = mul_matrix (w, flag_z ? x : z, y);
+              memset (y->data, 0, n * n * sizeof *(y->data));
+              if (retval)
+                {
+                  deallocate_matrix (z);
+                  deallocate_matrix (w);
+                  deallocate_matrix (y);
+                  deallocate_matrix (x);
+                  return retval;
+                }
+            }
+          else
+            {
+              flag_w = !flag_w;
+              retval = mul_matrix (y, flag_z ? x : z, w);
+              memset (w->data, 0, n * n * sizeof *(y->data));
+              if (retval)
+                {
+                  deallocate_matrix (z);
+                  deallocate_matrix (w);
+                  deallocate_matrix (y);
+                  deallocate_matrix (x);
+                  return retval;
+                }
+            }
+        }
+
+      else
+        {
+          pow /= 2;
+        }
+      if (flag_z)
+        {
+          flag_z = !flag_z;
+          retval = mul_matrix (z, x, x);
+          memset (x->data, 0, n * n * sizeof *(x->data));
+          if (retval)
+            {
+              deallocate_matrix (z);
+              deallocate_matrix (w);
+              deallocate_matrix (y);
+              deallocate_matrix (x);
+              return retval;
+            }
+        }
+      else
+        {
+          {
+            flag_z = !flag_z;
+            retval = mul_matrix (x, z, z);
+            memset (z->data, 0, n * n * sizeof *(z->data));
+            if (retval)
+              {
+                deallocate_matrix (z);
+                deallocate_matrix (w);
+                deallocate_matrix (y);
+                deallocate_matrix (x);
+                return retval;
+              }
+          }
+        }
+    }
+  retval = mul_matrix (result, flag_z ? x : z, flag_w ? y : w);
+  deallocate_matrix (z);
+  deallocate_matrix (w);
+  deallocate_matrix (y);
+  deallocate_matrix (x);
+
+  if (retval)
+    return retval;
+
+  return 0;
 }
 
 /*
@@ -663,12 +856,12 @@ neg_matrix (matrix *result, matrix *mat)
   size_t from_stride;
   if (!result || !mat)
     {
-      return -3;
+      return EFAULT;
     }
   if (size_mismatch (mat, result))
     {
-      return -1;
     }
+  return EINVAL;
 
   rows = mat->rows;
   cols = mat->cols;
@@ -707,11 +900,11 @@ abs_matrix (matrix *result, matrix *mat)
   size_t from_stride;
   if (!result || !mat)
     {
-      return -3;
+      return EFAULT;
     }
   if (size_mismatch (mat, result))
     {
-      return -1;
+      return EINVAL;
     }
 
   rows = mat->rows;
